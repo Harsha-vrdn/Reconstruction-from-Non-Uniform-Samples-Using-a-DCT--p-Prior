@@ -1,6 +1,4 @@
-# mm_cg_reconstruction.py
-# Requires: numpy, scipy, imageio or pillow, matplotlib
-# Run: python mm_cg_reconstruction.py
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.fftpack import dct, idct
@@ -9,9 +7,7 @@ from PIL import Image
 import time
 import os
 
-# -------------------------
-# Utility functions: 2D DCT / IDCT (orthonormal)
-# -------------------------
+
 def dct2(x):
     # apply 1D dct (type II, orthonormal) on rows then cols
     return dct(dct(x.T, norm='ortho').T, norm='ortho')
@@ -20,9 +16,6 @@ def idct2(x):
     # inverse DCT (type III, orthonormal)
     return idct(idct(x.T, norm='ortho').T, norm='ortho')
 
-# -------------------------
-# PSNR and relative error
-# -------------------------
 def psnr(x_hat, x_true):
     N = x_true.size
     num = np.max(np.abs(x_true))
@@ -34,9 +27,6 @@ def psnr(x_hat, x_true):
 def rel_l2(x_hat, x_true):
     return np.linalg.norm(x_hat.ravel() - x_true.ravel()) / np.linalg.norm(x_true.ravel())
 
-# -------------------------
-# Mask and measurement operators
-# -------------------------
 def make_random_mask(shape, sampling_ratio, rng=None):
     rng = np.random.default_rng(rng)
     N = shape[0] * shape[1]
@@ -50,19 +40,10 @@ def apply_mask(x, mask):
     # elementwise multiplication
     return mask * x
 
-# -------------------------
-# MM-CG solver
-# -------------------------
 def mm_cg_reconstruct(m, mask, lam, p=0.4, eps=1e-6,
                       tol_cg=1e-6, tol_mm=1e-4, max_mm_iters=200,
                       verbose=False):
-    """
-    m : measured image with zeros in unobserved positions (same shape as x)
-    mask : same shape, 0/1 mask
-    lam : lambda regularization scalar
-    p : exponent for lp prior (0.2 < p <= 0.5 typically)
-    returns reconstructed image x_hat, and diagnostics dict
-    """
+
     shape = m.shape
     N = shape[0] * shape[1]
     # initialize zero-filled image
@@ -135,9 +116,6 @@ def mm_cg_reconstruct(m, mask, lam, p=0.4, eps=1e-6,
     }
     return xk, diagnostics
 
-# -------------------------
-# Experiment runner
-# -------------------------
 def run_experiments(image_paths, sampling_ratios=[0.1,0.2,0.3,0.5],
                     p_list=[0.3,0.4,0.5],
                     lambda_grid=[1e-4,1e-3,1e-2,1e-1,1],
@@ -237,9 +215,6 @@ def run_experiments(image_paths, sampling_ratios=[0.1,0.2,0.3,0.5],
     print("All experiments finished. Results saved in:", out_dir)
 
 
-# -------------------------
-# Main: example usage
-# -------------------------
 if __name__ == "__main__":
     # update paths to your images (cameraman, barbara/lena)
     image_paths = ["cameraman.tif", "lena.png"]  # ensure these files exist in working dir
